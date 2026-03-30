@@ -236,9 +236,9 @@ export const UsersPage = () => {
           <h2 className="text-3xl font-bold text-white tracking-tight">User Directory</h2>
           <p className="text-white/40 mt-1">Manage infrastructure access and system roles.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <Button 
-            className="bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-lg shadow-blue-600/20 px-6" 
+            className="bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-lg shadow-blue-600/20 px-6 w-full sm:w-auto" 
             startContent={<Plus size={18} />}
             onPress={onAddOpen}
           >
@@ -246,7 +246,7 @@ export const UsersPage = () => {
           </Button>
           <Button 
             variant="flat" 
-            className="bg-white/5 border border-white/10 text-white/80" 
+            className="bg-white/5 border border-white/10 text-white/80 w-full sm:w-auto" 
             startContent={<Radio size={18} />}
             onPress={() => {
               setBroadcastType("all");

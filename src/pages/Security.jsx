@@ -36,12 +36,12 @@ import { cn } from "../lib/utils.js";
 export const Security = () => {
   return (
     <div className="space-y-8 animate-in slide-in-from-left-4 duration-500">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
          <div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Security & Governance</h2>
             <p className="text-white/40 mt-1">Manage infrastructure encryption, firewall rules, and authentication.</p>
          </div>
-         <Button className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-8 shadow-lg shadow-rose-600/20" startContent={<ShieldAlert size={18} />}>
+         <Button className="w-full md:w-auto bg-rose-600 hover:bg-rose-500 text-white font-bold px-8 shadow-lg shadow-rose-600/20" startContent={<ShieldAlert size={18} />}>
            Lock All Endpoints
          </Button>
       </div>
@@ -92,26 +92,26 @@ export const Security = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
          <Card className="glass border-none bg-black/40 flex flex-col p-6">
-            <CardHeader className="p-0 flex justify-between items-center mb-6">
+            <CardHeader className="p-0 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
                <div className="flex items-center gap-3">
-                  <Key size={20} className="text-blue-400" />
+                  <Key size={20} className="text-blue-400 shrink-0" />
                   <h3 className="text-xl font-bold text-white">Active API Keys</h3>
                </div>
-               <Button size="sm" variant="flat" className="bg-blue-500/10 text-blue-400" startContent={<Plus size={16} />}>Generate New</Button>
+               <Button size="sm" variant="flat" className="w-full sm:w-auto bg-blue-500/10 text-blue-400" startContent={<Plus size={16} />}>Generate New</Button>
             </CardHeader>
             <div className="space-y-4">
                {[1, 2, 3].map(id => (
-                  <div key={id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors">
+                  <div key={id} className="flex flex-col sm:flex-row p-3 rounded-xl gap-4 sm:items-center justify-between bg-white/5 border border-white/5 group hover:bg-white/10 transition-colors">
                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-white/40">
+                        <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-white/40 shrink-0">
                            <Lock size={18} />
                         </div>
-                        <div>
-                           <p className="text-sm font-bold text-white tracking-wide">PROD-READER-KEY-{id}</p>
-                           <p className="text-[10px] text-white/30 truncate max-w-[150px]">**************A2B{id}</p>
+                        <div className="min-w-0">
+                           <p className="text-sm font-bold text-white tracking-wide truncate">PROD-READER-KEY-{id}</p>
+                           <p className="text-[10px] text-white/30 truncate">**************A2B{id}</p>
                         </div>
                      </div>
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2 self-end sm:self-auto">
                         <Chip size="sm" variant="flat" color="success" className="text-[10px]">Active</Chip>
                         <Button isIconOnly variant="light" size="sm" className="text-white/20 hover:text-white"><Eye size={16} /></Button>
                         <Button isIconOnly variant="light" size="sm" className="text-white/11 hover:text-rose-500 transition-colors"><Trash2 size={16} /></Button>
@@ -122,12 +122,12 @@ export const Security = () => {
          </Card>
 
          <Card className="glass border-none bg-black/40 p-6 flex flex-col">
-            <CardHeader className="p-0 flex justify-between items-center mb-6">
+            <CardHeader className="p-0 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
                <div className="flex items-center gap-3">
-                  <ShieldIcon size={20} className="text-emerald-400" />
+                  <ShieldIcon size={20} className="text-emerald-400 shrink-0" />
                   <h3 className="text-xl font-bold text-white">Security Firewall Rules</h3>
                </div>
-               <Chip color="success" variant="flat" className="bg-emerald-500/10">Stable</Chip>
+               <Chip color="success" variant="flat" className="bg-emerald-500/10 shrink-0 ml-0 sm:ml-4">Stable</Chip>
             </CardHeader>
             <div className="space-y-4">
                <FirewallRule title="Block External DB Access" port="5432" action="DENY" protocol="TCP" status="active" />
@@ -140,11 +140,11 @@ export const Security = () => {
       </div>
 
       <Card className="glass border-none bg-black/40 p-6">
-         <div className="flex justify-between items-center mb-6">
+         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-3">
-               <AlertTriangle size={20} className="text-amber-500" /> Critical Security Events
+               <AlertTriangle size={20} className="text-amber-500 shrink-0" /> Critical Security Events
             </h3>
-            <Link color="primary" className="text-sm cursor-pointer underline-offset-4 decoration-current transition-all hover:underline">Full Audit Log</Link>
+            <Link color="primary" className="text-sm cursor-pointer underline-offset-4 decoration-current transition-all hover:underline shrink-0">Full Audit Log</Link>
          </div>
          <div className="space-y-3">
             <EventItem severity="high" timestamp="2026-03-30 22:45:12" message="Unauthorized access attempt detected from 192.168.1.105 (Berlin Hub)" />
@@ -157,16 +157,16 @@ export const Security = () => {
 };
 
 const FirewallRule = ({ title, port, action, protocol, status }) => (
-  <div className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/5 group hover:bg-white/10 transition-colors">
+  <div className="flex p-3 rounded-lg border border-white/5 bg-white/5 group flex-col sm:flex-row gap-3 sm:items-center justify-between hover:bg-white/10 transition-colors">
      <div className="flex items-center gap-3">
-        <div className={cn("w-1 h-8 rounded-full", action === 'DENY' ? "bg-rose-500" : action === 'ALLOW' ? "bg-emerald-500" : "bg-amber-500")}></div>
-        <div>
-           <p className="text-sm font-semibold text-white tracking-wide">{title}</p>
-           <p className="text-[10px] text-white/40 uppercase font-mono">Port {port} | {protocol}</p>
+        <div className={cn("w-1 h-8 rounded-full shrink-0", action === 'DENY' ? "bg-rose-500" : action === 'ALLOW' ? "bg-emerald-500" : "bg-amber-500")}></div>
+        <div className="min-w-0">
+           <p className="text-sm font-semibold text-white tracking-wide truncate">{title}</p>
+           <p className="text-[10px] text-white/40 uppercase font-mono truncate">Port {port} | {protocol}</p>
         </div>
      </div>
-     <div className="flex items-center gap-3">
-        <Badge content={action} color={action === 'DENY' ? "danger" : action === 'ALLOW' ? "success" : "warning"} variant="flat" className="text-[8px]" />
+     <div className="flex items-center gap-3 self-end sm:self-auto">
+        <Badge content={action} color={action === 'DENY' ? "danger" : action === 'ALLOW' ? "success" : "warning"} variant="flat" className="text-[8px] sm:w-16 flex justify-center" />
         <Switch size="sm" defaultSelected={status === 'active'} />
      </div>
   </div>

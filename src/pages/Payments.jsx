@@ -29,12 +29,12 @@ import {
 export const Payments = () => {
   return (
     <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
          <div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Financial Services</h2>
             <p className="text-white/40 mt-1">Manage payment gateways and IoT monetization.</p>
          </div>
-         <Button className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-600/20" startContent={<Plus size={18} />}>
+         <Button className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-600/20" startContent={<Plus size={18} />}>
            Withdraw Funds
          </Button>
       </div>
@@ -152,17 +152,17 @@ const BalanceCard = ({ title, amount, trend, icon }) => (
 );
 
 const GatewayItem = ({ name, status, type, logo }) => (
-  <div className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/5 group hover:bg-white/10 transition-colors">
+  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between p-4 rounded-xl border border-white/5 bg-white/5 group hover:bg-white/10 transition-colors">
      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-lg bg-white/5 p-2 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-lg bg-white/5 p-2 flex items-center justify-center shrink-0">
            <img src={logo} alt={name} className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100" />
         </div>
-        <div>
-           <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{name}</p>
-           <p className="text-[10px] text-white/30 uppercase tracking-widest">{type}</p>
+        <div className="min-w-0">
+           <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors truncate">{name}</p>
+           <p className="text-[10px] text-white/30 uppercase tracking-widest truncate">{type}</p>
         </div>
      </div>
-     <div className="flex items-center gap-3">
+     <div className="flex items-center gap-3 self-end sm:self-auto">
         <Chip 
           variant="dot" 
           color={status === "online" ? "success" : status === "warning" ? "warning" : "danger"} 
@@ -171,7 +171,7 @@ const GatewayItem = ({ name, status, type, logo }) => (
         >
           {status}
         </Chip>
-        <Button isIconOnly variant="light" size="sm" className="text-white/20 hover:text-white">
+        <Button isIconOnly variant="light" size="sm" className="text-white/20 hover:text-white shrink-0">
            <ExternalLink size={14} />
         </Button>
      </div>

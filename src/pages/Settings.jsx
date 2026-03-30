@@ -32,12 +32,12 @@ import {
 export const Settings = () => {
   return (
     <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
          <div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Console Settings</h2>
             <p className="text-white/40 mt-1">Configure your personal workspace and platform preferences.</p>
          </div>
-         <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-600/20" startContent={<Save size={18} />}>
+         <Button className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 shadow-lg shadow-blue-600/20" startContent={<Save size={18} />}>
            Save Changes
          </Button>
       </div>

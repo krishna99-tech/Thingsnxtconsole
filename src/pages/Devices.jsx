@@ -168,10 +168,10 @@ export const Devices = () => {
            <h2 className="text-3xl font-bold text-white">Device Fleet</h2>
            <p className="text-white/40 mt-1">Manage physical hardware and edge gateway connectivity.</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="flat" className="glass border-white/10 text-white" startContent={<RefreshCw size={16} />}>Scan New</Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <Button variant="flat" className="glass border-white/10 text-white w-full sm:w-auto" startContent={<RefreshCw size={16} />}>Scan New</Button>
            <Button 
-            className="bg-blue-600 hover:bg-blue-500 text-white" 
+            className="bg-blue-600 hover:bg-blue-500 text-white w-full sm:w-auto" 
             startContent={<Send size={16} />}
             onPress={() => {
                 setBroadcastType("all");

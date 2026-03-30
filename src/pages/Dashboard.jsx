@@ -17,12 +17,12 @@ const data = [
 export const Dashboard = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row gap-4 justify-between md:items-end">
         <div>
           <h2 className="text-3xl font-bold text-white tracking-tight">System Overview</h2>
           <p className="text-white/40 mt-1">Real-time monitoring and analytics for your IoT network.</p>
         </div>
-        <Button color="primary" variant="flat" startContent={<Activity size={18} />}>
+        <Button color="primary" variant="flat" className="w-full md:w-auto" startContent={<Activity size={18} />}>
           Run Diagnostics
         </Button>
       </div>
@@ -64,9 +64,9 @@ export const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 glass border-none bg-black/40 p-6">
-          <CardHeader className="flex justify-between p-0 mb-6">
+          <CardHeader className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center p-0 mb-6">
             <h3 className="text-xl font-bold text-white">Network Activity</h3>
-            <div className="flex gap-4 items-center">
+            <div className="flex flex-wrap gap-4 items-center mt-2 sm:mt-0">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 <span className="text-sm text-white/40">Active Nodes</span>

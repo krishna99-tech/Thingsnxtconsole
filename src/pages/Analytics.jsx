@@ -69,15 +69,15 @@ const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'];
 export const Analytics = () => {
   return (
     <div className="space-y-8 animate-in zoom-in-95 duration-500">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
          <div>
             <h2 className="text-3xl font-bold text-white tracking-tight">System Analytics</h2>
             <p className="text-white/40 mt-1">Deep inspection of IoT network performance and trends.</p>
          </div>
-         <div className="flex gap-2">
+         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
             <Select 
               size="sm" 
-              className="w-[150px]" 
+              className="w-full sm:w-[150px]" 
               classNames={{trigger: "bg-white/5 border border-white/10"}}
               defaultSelectedKeys={["30days"]}
             >
@@ -85,15 +85,15 @@ export const Analytics = () => {
                <SelectItem key="30days">Last 30 Days</SelectItem>
                <SelectItem key="90days">Last Quarter</SelectItem>
             </Select>
-            <Button color="primary" variant="flat" className="shadow-lg shadow-blue-600/20" startContent={<Search size={18} />}>Generate Report</Button>
+            <Button color="primary" variant="flat" className="w-full sm:w-auto shadow-lg shadow-blue-600/20" startContent={<Search size={18} />}>Generate Report</Button>
          </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 glass border-none bg-black/40 p-6">
-           <CardHeader className="p-0 flex justify-between mb-8">
+         <Card className="lg:col-span-2 glass border-none bg-black/40 p-6">
+           <CardHeader className="p-0 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
               <h3 className="text-xl font-bold text-white">Resource Allocation</h3>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4 mt-2 sm:mt-0">
                  <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                     <span className="text-xs text-white/40 text-sm">Revenue</span>
