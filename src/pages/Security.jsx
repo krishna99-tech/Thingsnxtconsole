@@ -1,4 +1,6 @@
 import React from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import { 
   Card, 
   CardBody, 
@@ -34,6 +36,22 @@ import {
 import { cn } from "../lib/utils.js";
 
 export const Security = () => {
+  const { data: firewallRules = [], isLoading: isLoadingFirewall } = useQuery({
+    queryKey: ['security_firewall'],
+    queryFn: async () => {
+      const res = await api.get('/security/firewall');
+      return res.data;
+    }
+  });
+
+  const { data: securityEvents = [], isLoading: isLoadingEvents } = useQuery({
+    queryKey: ['security_events'],
+    queryFn: async () => {
+      const res = await api.get('/security/events');
+      return res.data;
+    }
+  });
+
   return (
     <div className="space-y-8 animate-in slide-in-from-left-4 duration-500">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -130,10 +148,10 @@ export const Security = () => {
                <Chip color="success" variant="flat" className="bg-emerald-500/10 shrink-0 ml-0 sm:ml-4">Stable</Chip>
             </CardHeader>
             <div className="space-y-4">
-               <FirewallRule title="Block External DB Access" port="5432" action="DENY" protocol="TCP" status="active" />
-               <FirewallRule title="Allow MQTT Ingress" port="1883" action="ALLOW" protocol="TCP/UDP" status="active" />
-               <FirewallRule title="Rate Limit API Endpoints" port="ANY" action="THROTTLE" protocol="HTTP" status="active" />
-               <FirewallRule title="Geo-Fencing APAC" port="*" action="ALLOW" protocol="ALL" status="inactive" />
+               {isLoadingFirewall && <p className="text-white/40 text-sm">Loading rules...</p>}
+               {firewallRules.map(rule => (
+                  <FirewallRule key={rule.id} {...rule} />
+               ))}
             </div>
             <Button variant="flat" className="mt-6 border border-white/10 text-white/40 hover:text-white">View Advanced Rules Editor</Button>
          </Card>
@@ -147,9 +165,10 @@ export const Security = () => {
             <Link color="primary" className="text-sm cursor-pointer underline-offset-4 decoration-current transition-all hover:underline shrink-0">Full Audit Log</Link>
          </div>
          <div className="space-y-3">
-            <EventItem severity="high" timestamp="2026-03-30 22:45:12" message="Unauthorized access attempt detected from 192.168.1.105 (Berlin Hub)" />
-            <EventItem severity="medium" timestamp="2026-03-30 21:30:05" message="SSH root login enabled by user admin@iot.com" />
-            <EventItem severity="low" timestamp="2026-03-30 19:12:33" message="Automatic firewall rule 'ST-923' modified by system" />
+            {isLoadingEvents && <p className="text-white/40 text-sm">Loading events...</p>}
+            {securityEvents.map(event => (
+               <EventItem key={event.id} {...event} />
+            ))}
          </div>
       </Card>
     </div>

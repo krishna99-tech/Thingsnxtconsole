@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
 import { 
   Table, 
   TableHeader, 
@@ -20,63 +22,13 @@ import {
   Select,
   SelectItem,
   Textarea,
-  Card
+  Card,
+  Spinner
 } from "@heroui/react";
 import { Smartphone, Signal, Cpu, Activity, LayoutDashboard, Database, HardDrive, RefreshCw, Radio, Send, Mail } from "lucide-react";
 import { cn } from "../lib/utils.js";
 
-const devices = [
-  {
-    id: "D001",
-    name: "SensorNode Alpha-12",
-    type: "Gateway",
-    status: "online",
-    health: 98,
-    lastSeen: "2m ago",
-    email: "gateway-01@iot-node.net",
-    location: "Singapore Hub"
-  },
-  {
-    id: "D002",
-    name: "Ambient Light Sensor V2",
-    type: "Endpoint",
-    status: "offline",
-    health: 45,
-    lastSeen: "4h ago",
-    email: "sensor-02@iot-node.net",
-    location: "Jakarta Warehouse"
-  },
-  {
-    id: "D003",
-    name: "HVAC Controller Pro",
-    type: "Actuator",
-    status: "online",
-    health: 72,
-    lastSeen: "15s ago",
-    email: "hvac-pro@iot-node.net",
-    location: "Tokyo HQ"
-  },
-  {
-    id: "D004",
-    name: "Security Cam AI-4K",
-    type: "Camera",
-    status: "online",
-    health: 91,
-    lastSeen: "Just now",
-    email: "cam-ai-4k@iot-node.net",
-    location: "Mumbai Port"
-  },
-  {
-    id: "D005",
-    name: "Power Meter 3-Phase",
-    type: "Meter",
-    status: "online",
-    health: 84,
-    lastSeen: "10m ago",
-    email: "meter-3p@iot-node.net",
-    location: "Seoul Factory"
-  },
-];
+// Initial devices moved to backend api.js
 
 const statusColorMap = {
   online: "success",
@@ -88,6 +40,14 @@ export const Devices = () => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [broadcastType, setBroadcastType] = useState("all");
+
+  const { data: devices = [], isLoading } = useQuery({
+    queryKey: ['devices'],
+    queryFn: async () => {
+      const res = await api.get('/devices');
+      return res.data;
+    }
+  });
 
   const renderCell = (device, columnKey) => {
     const cellValue = device[columnKey];
@@ -206,7 +166,7 @@ export const Devices = () => {
           <TableColumn key="email">ASSIGNED EMAIL</TableColumn>
           <TableColumn key="actions" align="center">ACTIONS</TableColumn>
         </TableHeader>
-        <TableBody items={devices}>
+        <TableBody items={devices} isLoading={isLoading} loadingContent={<Spinner color="white" />}>
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

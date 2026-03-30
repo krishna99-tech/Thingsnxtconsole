@@ -1,4 +1,6 @@
 import React from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import { 
   Card, 
   CardBody, 
@@ -15,7 +17,8 @@ import {
   Progress,
   Switch,
   Select,
-  SelectItem
+  SelectItem,
+  Spinner
 } from "@heroui/react";
 import { 
   BarChart2, 
@@ -48,25 +51,27 @@ import {
 } from 'recharts';
 import { cn } from "../lib/utils";
 
-const barData = [
-  { name: 'Jan', revenue: 4000, nodes: 2400 },
-  { name: 'Feb', revenue: 3000, nodes: 1398 },
-  { name: 'Mar', revenue: 2000, nodes: 9800 },
-  { name: 'Apr', revenue: 2780, nodes: 3908 },
-  { name: 'May', revenue: 1890, nodes: 4800 },
-  { name: 'Jun', revenue: 2390, nodes: 3800 },
-];
-
-const pieData = [
-  { name: 'Sensor Data', value: 400 },
-  { name: 'Media Stream', value: 300 },
-  { name: 'OTA Updates', value: 300 },
-  { name: 'System Logs', value: 200 },
-];
+// Chart data moved to api.js
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'];
 
 export const Analytics = () => {
+  const { data: barData = [], isLoading: barLoading } = useQuery({
+    queryKey: ['analytics_bar'],
+    queryFn: async () => {
+      const res = await api.get('/analytics/bar');
+      return res.data;
+    }
+  });
+
+  const { data: pieData = [], isLoading: pieLoading } = useQuery({
+    queryKey: ['analytics_pie'],
+    queryFn: async () => {
+      const res = await api.get('/analytics/pie');
+      return res.data;
+    }
+  });
+
   return (
     <div className="space-y-8 animate-in zoom-in-95 duration-500">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -104,7 +109,12 @@ export const Analytics = () => {
                  </div>
               </div>
            </CardHeader>
-           <div className="w-full">
+           <div className="w-full relative min-h-[400px]">
+              {barLoading && (
+                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/20 backdrop-blur-sm rounded-xl">
+                    <Spinner color="primary" />
+                 </div>
+              )}
              <ResponsiveContainer width="100%" height={400}>
                <BarChart data={barData}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff0a" />
@@ -123,7 +133,12 @@ export const Analytics = () => {
 
         <Card className="glass border-none bg-black/40 p-6 flex flex-col items-center">
            <h3 className="text-xl font-bold text-white mb-8 self-start text-left">Traffic Distribution</h3>
-           <div className="w-full">
+           <div className="w-full relative min-h-[300px]">
+              {pieLoading && (
+                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/20 backdrop-blur-sm rounded-xl">
+                    <Spinner color="secondary" />
+                 </div>
+              )}
              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie

@@ -1,20 +1,36 @@
 import React from "react";
-import { Card, CardBody, CardHeader, Button, Progress, Chip, Avatar } from "@heroui/react";
+import { Card, CardBody, CardHeader, Button, Progress, Chip, Avatar, Spinner } from "@heroui/react";
 import { TrendingUp, Users, Smartphone, Signal, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from "../lib/utils";
-
-const data = [
-  { name: 'Mon', active: 400, requests: 240 },
-  { name: 'Tue', active: 300, requests: 139 },
-  { name: 'Wed', active: 2000, requests: 980 },
-  { name: 'Thu', active: 2780, requests: 390 },
-  { name: 'Fri', active: 1890, requests: 480 },
-  { name: 'Sat', active: 2390, requests: 380 },
-  { name: 'Sun', active: 3490, requests: 430 },
-];
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 
 export const Dashboard = () => {
+  const { data: chartData = [], isLoading: chartLoading } = useQuery({
+    queryKey: ['dashboard_sparkline'],
+    queryFn: async () => {
+      const res = await api.get('/dashboard/sparkline');
+      return res.data;
+    }
+  });
+
+  const { data: stats = [], isLoading: statsLoading } = useQuery({
+    queryKey: ['dashboard_stats'],
+    queryFn: async () => {
+      const res = await api.get('/dashboard/stats');
+      return res.data;
+    }
+  });
+
+  const { data: alerts = [], isLoading: alertsLoading } = useQuery({
+    queryKey: ['dashboard_alerts'],
+    queryFn: async () => {
+      const res = await api.get('/dashboard/alerts');
+      return res.data;
+    }
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row gap-4 justify-between md:items-end">
@@ -28,38 +44,25 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Active Devices" 
-          value="1,280" 
-          change="+12.5%" 
-          trend="up" 
-          icon={<Smartphone className="text-blue-400" />} 
-          chartColor="#3b82f6"
-        />
-        <StatCard 
-          title="Daily Traffic" 
-          value="45.2 GB" 
-          change="-2.3%" 
-          trend="down" 
-          icon={<Signal className="text-purple-400" />} 
-          chartColor="#a855f7"
-        />
-        <StatCard 
-          title="Connected Users" 
-          value="4,500" 
-          change="+8.4%" 
-          trend="up" 
-          icon={<Users className="text-emerald-400" />} 
-          chartColor="#10b981"
-        />
-        <StatCard 
-          title="Server Uptime" 
-          value="99.99%" 
-          change="Stable" 
-          trend="neutral" 
-          icon={<TrendingUp className="text-amber-400" />} 
-          chartColor="#f59e0b"
-        />
+        {statsLoading && <p className="text-white/40 text-sm">Loading stats...</p>}
+        {stats.map(s => {
+           let IconComponent = Smartphone;
+           if (s.icon === "signal") IconComponent = Signal;
+           if (s.icon === "users") IconComponent = Users;
+           if (s.icon === "trendingup") IconComponent = TrendingUp;
+
+           return (
+             <StatCard 
+               key={s.id}
+               title={s.title} 
+               value={s.value} 
+               change={s.change} 
+               trend={s.trend} 
+               icon={<IconComponent className={`text-[${s.chartColor}]`} />} 
+               chartColor={s.chartColor}
+             />
+           )
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -77,9 +80,14 @@ export const Dashboard = () => {
               </div>
             </div>
           </CardHeader>
-          <div className="w-full">
+          <div className="w-full relative min-h-[300px]">
+            {chartLoading && (
+               <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/20 backdrop-blur-sm rounded-xl">
+                  <Spinner color="primary" />
+               </div>
+            )}
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={data}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -110,10 +118,10 @@ export const Dashboard = () => {
         <Card className="glass border-none bg-black/40 p-6 flex flex-col gap-6">
           <h3 className="text-xl font-bold text-white">Critical Notifications</h3>
           <div className="space-y-4">
-             <AlertItem title="Device Overheating" description="Node-A12 in Singapore Data Center" time="2m ago" severity="error" />
-             <AlertItem title="API Rate Limit" description="Approaching limit for Billing API" time="45m ago" severity="warning" />
-             <AlertItem title="New Firmware" description="Version 2.4.5 ready for deployment" time="1h ago" severity="success" />
-             <AlertItem title="User Action" description="Admin changed security rules" time="3h ago" severity="info" />
+             {alertsLoading && <p className="text-white/40 text-sm">Loading alerts...</p>}
+             {alerts.map(a => (
+                <AlertItem key={a.id} title={a.title} description={a.description} time={a.time} severity={a.severity} />
+             ))}
           </div>
           <Button className="mt-auto w-full glass border-white/10 text-white/80 hover:bg-white/5">View All Logs</Button>
         </Card>

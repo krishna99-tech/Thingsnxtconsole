@@ -1,4 +1,6 @@
 import React from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import { 
   Card, 
   CardBody, 
@@ -30,6 +32,14 @@ import {
 } from "lucide-react";
 
 export const Settings = () => {
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['settings_profile'],
+    queryFn: async () => {
+      const res = await api.get('/settings/profile');
+      return res.data;
+    }
+  });
+
   return (
     <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -67,22 +77,28 @@ export const Settings = () => {
                        </div>
                     </div>
                     <div className="space-y-1">
-                       <h3 className="text-xl font-bold text-white">Admin User</h3>
-                       <p className="text-sm text-white/40">Principal Infrastructure Architect</p>
-                       <p className="text-xs text-blue-400">admin@iot-console.com</p>
+                       <h3 className="text-xl font-bold text-white">{profile?.fullName || "Loading..."}</h3>
+                       <p className="text-sm text-white/40">{profile?.jobTitle || "Loading..."}</p>
+                       <p className="text-xs text-blue-400">{profile?.email || "Loading..."}</p>
                     </div>
                  </div>
 
                  <Divider className="bg-white/5" />
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input label="Full Name" placeholder="Your full name" defaultValue="Alexander Pierce" classNames={inputStyles} />
-                    <Input label="Job Title" placeholder="Your job title" defaultValue="Admin Lead" classNames={inputStyles} />
-                    <Input label="Email Address" placeholder="Your email" defaultValue="admin@iot-console.com" classNames={inputStyles} />
-                    <Input label="Timezone" placeholder="UTC-05:00" defaultValue="UTC+05:30 (IST)" classNames={inputStyles} />
-                 </div>
+                 {isLoading ? (
+                    <p className="text-white/40">Loading settings...</p>
+                 ) : (
+                    <>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Input label="Full Name" placeholder="Your full name" defaultValue={profile?.fullName} classNames={inputStyles} />
+                          <Input label="Job Title" placeholder="Your job title" defaultValue={profile?.jobTitle} classNames={inputStyles} />
+                          <Input label="Email Address" placeholder="Your email" defaultValue={profile?.email} classNames={inputStyles} />
+                          <Input label="Timezone" placeholder="UTC-05:00" defaultValue={profile?.timezone} classNames={inputStyles} />
+                       </div>
 
-                 <Textarea label="Professional Bio" placeholder="Tell us about yourself..." defaultValue="Leading the digital transformation of the IoT infrastructure with over 10 years of experience in system architecture." classNames={inputStyles} minRows={3} />
+                       <Textarea label="Professional Bio" placeholder="Tell us about yourself..." defaultValue={profile?.bio} classNames={inputStyles} minRows={3} />
+                    </>
+                 )}
               </Card>
 
               <Card className="glass border-none bg-black/40 p-8 space-y-6">

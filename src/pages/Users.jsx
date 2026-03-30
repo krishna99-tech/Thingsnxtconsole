@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/api";
 import { 
   Table, 
   TableHeader, 
@@ -56,58 +58,7 @@ const columns = [
   {name: "ACTIONS", uid: "actions"},
 ];
 
-const initialUsers = [
-  {
-    id: 1,
-    name: "Tony Reichert",
-    role: "Admin",
-    team: "Management",
-    status: "active",
-    age: "29",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-    email: "tony.reichert@example.com",
-  },
-  {
-    id: 2,
-    name: "Zoey Lang",
-    role: "User",
-    team: "Development",
-    status: "suspended",
-    age: "25",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-    email: "zoey.lang@example.com",
-  },
-  {
-    id: 3,
-    name: "Jane Fisher",
-    role: "User",
-    team: "DevOps",
-    status: "active",
-    age: "22",
-    avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-    email: "jane.fisher@example.com",
-  },
-  {
-    id: 4,
-    name: "William Howard",
-    role: "Admin",
-    team: "Marketing",
-    status: "active",
-    age: "28",
-    avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-    email: "william.howard@example.com",
-  },
-  {
-    id: 5,
-    name: "Kristen Copper",
-    role: "User",
-    team: "Sales",
-    status: "suspended",
-    age: "24",
-    avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-    email: "kristen.copper@example.com",
-  },
-];
+// The initial format was migrated to the server.
 
 const statusColorMap = {
   active: "success",
@@ -115,7 +66,31 @@ const statusColorMap = {
 };
 
 export const UsersPage = () => {
-  const [users, setUsers] = useState(initialUsers);
+  const queryClient = useQueryClient();
+
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const response = await api.get('/users');
+      return response.data;
+    }
+  });
+
+  const addUserMutation = useMutation({
+    mutationFn: (newUserData) => api.post('/users', newUserData),
+    onSuccess: (response) => {
+      queryClient.setQueryData(['users'], (old) => [response.data, ...old]);
+      toast({ title: "User created", description: `${response.data.name} has been added.`, type: "success" });
+    }
+  });
+
+  const editUserMutation = useMutation({
+    mutationFn: (updatedUser) => api.put(`/users/${updatedUser.id}`, updatedUser),
+    onSuccess: (response, variables) => {
+      queryClient.setQueryData(['users'], (old) => old.map(u => u.id === variables.id ? variables : u));
+      toast({ title: "User updated", description: `${variables.name}'s profile has been saved.`, type: "success" });
+    }
+  });
   const [selectedUser, setSelectedUser] = useState(null);
   const [editForm, setEditForm] = useState({});
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -132,8 +107,7 @@ export const UsersPage = () => {
   };
 
   const saveEdit = (onClose) => {
-    setUsers(prev => prev.map(u => u.id === editForm.id ? { ...editForm } : u));
-    toast({ title: "User updated", description: `${editForm.name}'s profile has been saved.`, type: "success" });
+    editUserMutation.mutate(editForm);
     onClose();
   };
 
@@ -147,8 +121,7 @@ export const UsersPage = () => {
       id: Date.now(),
       avatar: `https://i.pravatar.cc/150?u=${Date.now()}`
     };
-    setUsers(prev => [newUser, ...prev]);
-    toast({ title: "User created", description: `${newUser.name} has been added.`, type: "success" });
+    addUserMutation.mutate(newUser);
     setNewUserForm({ name: "", email: "", role: "User", team: "", status: "active", age: "" });
     onClose();
   };
@@ -216,8 +189,7 @@ export const UsersPage = () => {
                   size="sm" 
                   isSelected={user.status === 'active'} 
                   onValueChange={(val) => {
-                    const newUsers = users.map(u => u.id === user.id ? {...u, status: val ? 'active' : 'suspended'} : u);
-                    setUsers(newUsers);
+                    editUserMutation.mutate({ ...user, status: val ? 'active' : 'suspended' });
                   }}
                 />
               </span>

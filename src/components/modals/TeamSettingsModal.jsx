@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import {
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-  Button, Input, Select, SelectItem, Avatar, Chip, Divider
+  Button, Input, Select, SelectItem, Avatar, Chip, Divider, Spinner
 } from "@heroui/react";
 import { Users, Plus, Trash2, Shield, Edit3, Crown, Eye } from "lucide-react";
 import { useToast } from "../../context/ToastContext";
@@ -13,21 +15,31 @@ const ROLES = [
   { key: "viewer", label: "Viewer",    icon: <Eye    size={12} />, color: "default"   },
 ];
 
-const INITIAL_MEMBERS = [
-  { id: 1, name: "Alexander Pierce",  email: "admin@iot-console.com",   role: "owner",  avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
-  { id: 2, name: "Tony Reichert",     email: "tony.reichert@example.com", role: "admin", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d" },
-  { id: 3, name: "Zoey Lang",         email: "zoey.lang@example.com",     role: "editor",avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
-  { id: 4, name: "Jane Fisher",       email: "jane.fisher@example.com",   role: "viewer",avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d" },
-];
+// Initial members moved to api.js
 
 let nextId = 10;
 
 export const TeamSettingsModal = ({ isOpen, onClose }) => {
-  const [members, setMembers]     = useState(INITIAL_MEMBERS);
+  const [members, setMembers]     = useState([]);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole]   = useState("viewer");
   const [inviteError, setInviteError] = useState("");
   const toast = useToast();
+
+  const { data: teamData = [], isLoading } = useQuery({
+    queryKey: ['team_members'],
+    queryFn: async () => {
+      const res = await api.get('/team');
+      return res.data;
+    },
+    enabled: isOpen,
+  });
+
+  useEffect(() => {
+    if (teamData.length > 0 && members.length === 0) {
+      setMembers(teamData);
+    }
+  }, [teamData, isOpen]);
 
   const roleFor  = (key) => ROLES.find(r => r.key === key) ?? ROLES[3];
 
@@ -142,8 +154,9 @@ export const TeamSettingsModal = ({ isOpen, onClose }) => {
               <Divider className="bg-white/5" />
 
               {/* Member list */}
-              <ul className="space-y-2" role="list" aria-label="Team members">
-                {members.map(m => {
+              {isLoading ? <Spinner size="sm" color="white" /> : (
+                 <ul className="space-y-2" role="list" aria-label="Team members">
+                   {members.map(m => {
                   const r = roleFor(m.role);
                   return (
                     <li
@@ -191,7 +204,8 @@ export const TeamSettingsModal = ({ isOpen, onClose }) => {
                   );
                 })}
               </ul>
-            </ModalBody>
+            )}
+          </ModalBody>
 
             <ModalFooter>
               <Button variant="light" onPress={close} className="text-white/50 hover:text-white">

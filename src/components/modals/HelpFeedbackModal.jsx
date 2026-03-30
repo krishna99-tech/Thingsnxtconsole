@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import {
   Modal, ModalContent, ModalHeader, ModalBody, ModalFooter,
-  Button, Textarea, Input, Divider
+  Button, Textarea, Input, Divider, Spinner
 } from "@heroui/react";
 import {
   HelpCircle, BookOpen, Code2, Activity, MessageSquare,
@@ -16,11 +18,7 @@ const QUICK_LINKS = [
   { label: "Community Forum",     desc: "Ask and share with peers",    icon: <MessageSquare size={16} />, href: "#", color: "text-amber-400 bg-amber-500/10" },
 ];
 
-const FAQS = [
-  { q: "How do I add a new IoT device?", a: "Go to Device Fleet → click 'Scan New' → follow the onboarding wizard to register your gateway or endpoint." },
-  { q: "How are API keys rotated?",       a: "Navigate to Security & Governance → Active API Keys → click the refresh icon next to any key and confirm." },
-  { q: "Can I export analytics data?",    a: "Yes. In the Analytics page, click 'Generate Report' to export a CSV of current metrics for the selected period." },
-];
+// FAQS moved to api.js
 
 export const HelpFeedbackModal = ({ isOpen, onClose }) => {
   const [tab, setTab]           = useState("help");    // "help" | "feedback"
@@ -29,6 +27,15 @@ export const HelpFeedbackModal = ({ isOpen, onClose }) => {
   const [message, setMessage]   = useState("");
   const [submitted, setSubmitted] = useState(false);
   const toast = useToast();
+
+  const { data: faqs = [], isLoading: faqsLoading } = useQuery({
+    queryKey: ['help_faqs'],
+    queryFn: async () => {
+      const res = await api.get('/help/faqs');
+      return res.data;
+    },
+    enabled: isOpen && tab === "help",
+  });
 
   const sendFeedback = () => {
     if (!message.trim()) {
@@ -138,22 +145,24 @@ export const HelpFeedbackModal = ({ isOpen, onClose }) => {
                     <p className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-3">
                       Frequently Asked
                     </p>
-                    <div className="space-y-2">
-                      {FAQS.map((faq, i) => (
-                        <details
-                          key={i}
-                          className="group rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden"
-                        >
-                          <summary className="flex justify-between items-center p-4 cursor-pointer text-sm font-medium text-white/80 hover:text-white transition-colors list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset rounded-xl">
-                            {faq.q}
-                            <span className="text-white/30 group-open:rotate-180 transition-transform text-lg leading-none shrink-0 ml-2">›</span>
-                          </summary>
-                          <div className="px-4 pb-4 text-sm text-white/50 leading-relaxed border-t border-white/5 pt-3">
-                            {faq.a}
-                          </div>
-                        </details>
-                      ))}
-                    </div>
+                    {faqsLoading ? <Spinner size="sm" color="white" /> : (
+                       <div className="space-y-2">
+                         {faqs.map((faq, i) => (
+                           <details
+                             key={i}
+                             className="group rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden"
+                           >
+                             <summary className="flex justify-between items-center p-4 cursor-pointer text-sm font-medium text-white/80 hover:text-white transition-colors list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset rounded-xl">
+                               {faq.q}
+                               <span className="text-white/30 group-open:rotate-180 transition-transform text-lg leading-none shrink-0 ml-2">›</span>
+                             </summary>
+                             <div className="px-4 pb-4 text-sm text-white/50 leading-relaxed border-t border-white/5 pt-3">
+                               {faq.a}
+                             </div>
+                           </details>
+                         ))}
+                       </div>
+                    )}
                   </div>
 
                   {/* Contact */}

@@ -1,4 +1,6 @@
 import React from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import { 
   Card, 
   CardBody, 
@@ -27,6 +29,22 @@ import {
 } from "lucide-react";
 
 export const Payments = () => {
+  const { data: paymentGateways = [], isLoading: isLoadingGateways } = useQuery({
+    queryKey: ['payments_gateways'],
+    queryFn: async () => {
+      const res = await api.get('/payments/gateways');
+      return res.data;
+    }
+  });
+
+  const { data: balances = [], isLoading: isLoadingBalances } = useQuery({
+    queryKey: ['payments_balances'],
+    queryFn: async () => {
+      const res = await api.get('/payments/balances');
+      return res.data;
+    }
+  });
+
   return (
     <div className="space-y-8 animate-in slide-in-from-top-4 duration-500">
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
@@ -40,9 +58,23 @@ export const Payments = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <BalanceCard title="Current Balance" amount="$12,480.00" trend="+12% this month" icon={<Wallet className="text-emerald-400" />} />
-        <BalanceCard title="Processing" amount="$2,150.50" trend="Next payout: Tomorrow" icon={<Clock className="text-amber-400" />} />
-        <BalanceCard title="Total Revenue" amount="$145,200.00" trend="All time gross" icon={<TrendingUp className="text-blue-400" />} />
+        {isLoadingBalances && <p className="text-white/40 text-sm">Loading balances...</p>}
+        {balances.map(b => {
+           let IconComponent = Wallet;
+           let iconColor = "text-emerald-400";
+           if (b.icon === "clock") { IconComponent = Clock; iconColor = "text-amber-400"; }
+           if (b.icon === "trendingup") { IconComponent = TrendingUp; iconColor = "text-blue-400"; }
+
+           return (
+             <BalanceCard 
+               key={b.id}
+               title={b.title} 
+               amount={b.amount} 
+               trend={b.trend} 
+               icon={<IconComponent className={iconColor} />} 
+             />
+           )
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -52,10 +84,10 @@ export const Payments = () => {
              <p className="text-sm text-white/40">Connected providers for device billing.</p>
           </CardHeader>
           <div className="space-y-4">
-             <GatewayItem name="Stripe Connect" status="online" type="Credit / Debit" logo="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" />
-             <GatewayItem name="PayPal Braintree" status="online" type="Digital Wallet" logo="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" />
-             <GatewayItem name="Coinbase Commerce" status="warning" type="Crypto (BTC/ETH)" logo="https://upload.wikimedia.org/wikipedia/commons/c/c2/Coinbase_Logo_2013.png" />
-             <GatewayItem name="Apple Pay" status="offline" type="Mobile Wallet" logo="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" />
+             {isLoadingGateways && <p className="text-white/40 text-sm">Loading gateways...</p>}
+             {paymentGateways.map(gateway => (
+                <GatewayItem key={gateway.id} {...gateway} />
+             ))}
           </div>
           <Button variant="flat" className="mt-4 border border-white/10 text-white/60 hover:text-white transition-all">Add New Gateway</Button>
         </Card>

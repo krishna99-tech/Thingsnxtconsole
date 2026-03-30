@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api';
 import {
   Navbar,
   NavbarBrand,
@@ -21,12 +23,7 @@ import { SystemHealthModal } from "./modals/SystemHealthModal";
 import { TeamSettingsModal } from "./modals/TeamSettingsModal";
 import { HelpFeedbackModal } from "./modals/HelpFeedbackModal";
 
-const notifications = [
-  { id: 1, type: "error",   title: "Device Overheating",  body: "Node-A12 in Singapore Data Center",    time: "2m ago"  },
-  { id: 2, type: "warning", title: "API Rate Limit",       body: "Approaching limit for Billing API",    time: "45m ago" },
-  { id: 3, type: "success", title: "New Firmware Ready",   body: "Version 2.4.5 ready for deployment",  time: "1h ago"  },
-  { id: 4, type: "info",    title: "User Action",          body: "Admin changed security rules",         time: "3h ago"  },
-];
+// Notifications moved to api.js
 
 const notifIcon = {
   error:   <AlertCircle  size={16} className="text-rose-400"    />,
@@ -56,6 +53,14 @@ export const CustomNavbar = ({ isSidebarOpen, toggleSidebar }) => {
     logout();
     navigate("/login", { replace: true });
   };
+
+  const { data: notifications = [], isLoading: isLoadingNotifs } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      const res = await api.get('/notifications');
+      return res.data;
+    }
+  });
 
   const visible = notifications.filter(n => !dismissed.includes(n.id));
   const unreadCount = visible.length;
